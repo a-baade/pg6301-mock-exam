@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import {
   BrowserRouter,
@@ -7,137 +7,133 @@ import {
   Routes,
   useNavigate,
 } from "react-router-dom";
+import { fetchJSON } from "./http";
 
-function FrontPage() {
+const ProfileContext = React.createContext({
+  userinfo: undefined,
+});
+
+function FrontPage({ reload }) {
+  const { userinfo } = useContext(ProfileContext);
+
+  async function handleLogout() {
+    await fetch("/api/login", { method: "delete" });
+    reload();
+  }
+
   return (
     <div>
-      <h1>Front Page</h1>
-      <div>
-        <Link to="/login">Login</Link>
-      </div>
-      <div>
-        <Link to="/profile">Profile</Link>
-      </div>
-      <div>
-        <button onClick={handleLogout}>Log out</button>
-      </div>
+      {!userinfo && (
+        <div>
+          <Link to={"/login"}>Log in</Link>
+        </div>
+      )}
+      {userinfo && (
+        <div>
+          <Link to={"/profile"}>{userinfo.name}'s Profile</Link>
+        </div>
+      )}
+      {userinfo && (
+        <div>
+          <button onClick={handleLogout}>Log out</button>
+        </div>
+      )}
     </div>
   );
 }
 
-async function fetchJSON(url) {
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Failed ${res.status}`);
-  }
-  return await res.json();
-}
-
-function useLoader(loadingFn) {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState();
-  const [error, setError] = useState();
-
-  async function load() {
-    try {
-      setLoading(true);
-      setData(await loadingFn());
-    } catch (error) {
-      setError(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-  useEffect(() => load(), []);
-  return { loading, data, error };
-}
-
 function Login() {
-  const [redirectUrl, setRedirectUrl] = useState();
+  const { oauth_config } = useContext(ProfileContext);
   useEffect(async () => {
-    const { authorization_endpoint } = await fetchJSON(
-      "https://accounts.google.com/.well-known/openid-configuration"
-    );
+    const { discovery_endpoint, client_id, scope } = oauth_config;
+    const discoveryEndpoint = await fetchJSON(discovery_endpoint);
+    const { authorization_endpoint } = discoveryEndpoint;
     const parameters = {
       response_type: "token",
-      client_id:
-        "72657279278-958d8tvbqaak9cvnlk0klrqjbbooirep.apps.googleusercontent.com",
-      scope: "email profile",
+      response_mode: "fragment",
+      client_id,
+      scope,
       redirect_uri: window.location.origin + "/login/callback",
     };
-    setRedirectUrl(
-      authorization_endpoint + "?" + new URLSearchParams(parameters)
-    );
+    window.location.href =
+      authorization_endpoint + "?" + new URLSearchParams(parameters);
   }, []);
 
   return (
     <div>
       <h1>Please wait...</h1>
-      <a href={redirectUrl}>Do login</a>
-      <div>{redirectUrl}</div>
     </div>
   );
 }
 
-function LoginCallback() {
+function LoginCallback({ reload }) {
   const navigate = useNavigate();
-  useEffect(() => {
+  useEffect(async () => {
     const { access_token } = Object.fromEntries(
       new URLSearchParams(window.location.hash.substring(1))
     );
     console.log(access_token);
 
-    fetch("/api/login", {
+    const res = await fetch("/api/login", {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ access_token }),
+      body: new URLSearchParams({ access_token }),
     });
-    navigate("/");
+    if (res.ok) {
+      reload();
+      navigate("/");
+    }
   });
   return <h1>Please wait...</h1>;
 }
 
-function handleLogout() {
-  fetch("/api/logout");
-  cookies.set("testtoken", { expires: Date.now() });
-}
-
 function Profile() {
-  const { loading, data, error } = useLoader(async () => {
-    return await fetchJSON("/api/login");
-  });
+  const { userinfo } = useContext(ProfileContext);
 
-  if (loading) {
-    return <div>Please wait ...</div>;
-  }
-  if (error) {
-    return <div>Error! {error.toString()}</div>;
-  }
   return (
     <div>
       <h1>
-        Profile for {data.name} ({data.email})
+        Profile for {userinfo.name} ({userinfo.email})
       </h1>
       <div>
-        <img src={data.picture} alt="Profile picture" />
+        <img src={userinfo.picture} alt="Profile picture" />
       </div>
-      <div>{JSON.stringify(data)}</div>
     </div>
   );
 }
 
 function Application() {
+  const [loading, setLoading] = useState(true);
+  const [login, setLogin] = useState();
+  useEffect(loadingLogin, []);
+
+  async function loadingLogin() {
+    setLoading(true);
+    setLogin(await fetchJSON("/api/login"));
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    console.log({ login });
+  }, [login]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path={"/"} element={<FrontPage />} />
-        <Route path={"/login"} element={<Login />} />
-        <Route path={"/login/callback"} element={<LoginCallback />} />
-        <Route path={"/profile"} element={<Profile />} />
-      </Routes>
-    </BrowserRouter>
+    <ProfileContext.Provider value={login}>
+      <BrowserRouter>
+        <Routes>
+          <Route path={"/"} element={<FrontPage reload={loadingLogin} />} />
+          <Route path={"/profile"} element={<Profile />} />
+          <Route path={"/login"} element={<Login />} />
+          <Route
+            path={"/login/callback"}
+            element={<LoginCallback reload={loadingLogin} />}
+          />
+        </Routes>
+      </BrowserRouter>
+    </ProfileContext.Provider>
   );
 }
 
