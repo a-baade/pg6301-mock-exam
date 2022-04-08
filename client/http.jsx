@@ -8,7 +8,7 @@ export async function fetchJSON(url) {
   return await res.json();
 }
 
-function useLoader(loadingFn) {
+export function useLoader(loadingFn) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState();
   const [error, setError] = useState();

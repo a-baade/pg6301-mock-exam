@@ -10,6 +10,7 @@ dotenv.config();
 const app = express();
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 const oauth_config = {
