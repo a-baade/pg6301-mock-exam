@@ -6,7 +6,7 @@ export function FrontPage({ reload }) {
   const { userinfo } = useContext(ProfileContext);
 
   async function handleLogout() {
-    await fetch("/api/login", { method: "delete" });
+    await fetch("/api/login/", { method: "delete" });
     reload();
   }
 
@@ -14,7 +14,12 @@ export function FrontPage({ reload }) {
     <div>
       {!userinfo && (
         <div>
-          <Link to={"/login"}>Log in</Link>
+          <div>
+            <Link to={"/login/google"}>Log-in via your Google account </Link>
+          </div>
+          <div>
+            <Link to={"/login/microsoft"}>Log-in via your School account</Link>
+          </div>
         </div>
       )}
       {userinfo && (

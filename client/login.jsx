@@ -18,7 +18,7 @@ export function Login() {
         response_mode: "fragment",
         client_id,
         scope,
-        redirect_uri: window.location.origin + "/login/callback",
+        redirect_uri: window.location.origin + "/login/google/callback",
       };
       window.location.href =
         authorization_endpoint + "?" + new URLSearchParams(parameters);
@@ -44,7 +44,7 @@ export function LoginCallback({ reload }) {
       );
       console.log(access_token);
 
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/login/google", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -56,7 +56,9 @@ export function LoginCallback({ reload }) {
         reload();
         navigate("/");
       } else {
-        setError(`Failed POST /api/login: ${res.status} ${res.statusText}`);
+        setError(
+          `Failed POST /api/login/google: ${res.status} ${res.statusText}`
+        );
       }
     }
 

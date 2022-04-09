@@ -15,7 +15,7 @@ function Application() {
 
   async function loadingLogin() {
     setLoading(true);
-    setLogin(await fetchJSON("/api/login"));
+    setLogin(await fetchJSON("/api/login/google"));
     setLoading(false);
   }
 
@@ -33,9 +33,9 @@ function Application() {
         <Routes>
           <Route path={"/"} element={<FrontPage reload={loadingLogin} />} />
           <Route path={"/profile"} element={<Profile />} />
-          <Route path={"/login"} element={<Login />} />
+          <Route path={"/login/google"} element={<Login />} />
           <Route
-            path={"/login/callback"}
+            path={"/login/google/callback"}
             element={<LoginCallback reload={loadingLogin} />}
           />
         </Routes>

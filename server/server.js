@@ -13,11 +13,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-const oauth_config = {
+const oauth_config_google = {
   discovery_endpoint:
     "https://accounts.google.com/.well-known/openid-configuration",
-  client_id: process.env.CLIENT_ID,
+  client_id: process.env.CLIENT_ID_GOOGLE,
   scope: "openid email profile",
+};
+
+const oauth_config = {
+  google: oauth_config_google,
 };
 
 async function fetchJSON(url, options) {
@@ -33,9 +37,11 @@ app.delete("/api/login", (req, res) => {
   res.sendStatus(200);
 });
 
-app.get("/api/login", async (req, res) => {
+app.get("/api/login/google", async (req, res) => {
   const { access_token } = req.signedCookies;
-  const discoveryEndpoint = await fetchJSON(oauth_config.discovery_endpoint);
+  const discoveryEndpoint = await fetchJSON(
+    oauth_config.google.discovery_endpoint
+  );
   const { userinfo_endpoint } = discoveryEndpoint;
 
   let userinfo = undefined;
@@ -48,10 +54,10 @@ app.get("/api/login", async (req, res) => {
   } catch (error) {
     console.log({ error });
   }
-  res.json({ userinfo, oauth_config }).status(200);
+  res.json({ userinfo, oauth_config: oauth_config_google }).status(200);
 });
 
-app.post("/api/login", (req, res) => {
+app.post("/api/login/google", (req, res) => {
   const { access_token } = req.body;
   res.cookie("access_token", access_token, { signed: true });
   res.sendStatus(200);
