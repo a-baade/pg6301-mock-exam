@@ -23,7 +23,7 @@ const oauth_config = {
 async function fetchJSON(url, options) {
   const res = await fetch(url, options);
   if (!res.ok) {
-    throw new Error(`Error fetching ${url}: ${res.status} ${res.statusText}`);
+    throw new Error(`Failed ${res.status}`);
   }
   return await res.json();
 }
@@ -46,7 +46,7 @@ app.get("/api/login", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error({ error });
+    console.log({ error });
   }
   res.json({ userinfo, oauth_config }).status(200);
 });

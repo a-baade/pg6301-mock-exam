@@ -71,6 +71,7 @@ function Login() {
 }
 
 function LoginCallback({ reload }) {
+  const [error, setError] = useState();
   const navigate = useNavigate();
   useEffect(() => {
     async function handleCallback() {
@@ -90,10 +91,22 @@ function LoginCallback({ reload }) {
       if (res.ok) {
         reload();
         navigate("/");
+      } else {
+        setError(`Failed POST /api/login: ${res.status} ${res.statusText}`);
       }
     }
     handleCallback();
   }, []);
+
+  if (error) {
+    return (
+      <div>
+        <h1>Error</h1>
+        <div>{error}</div>
+      </div>
+    );
+  }
+
   return <h1>Please wait...</h1>;
 }
 
