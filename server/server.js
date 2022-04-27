@@ -20,8 +20,16 @@ const oauth_config_google = {
   scope: "openid email profile",
 };
 
+const oauth_config_microsoft = {
+  discovery_endpoint:
+    "https://oidc-ver1.difi.no/idporten-oidc-provider/.well-known/openid-configuration",
+  client_id: process.env.CLIENT_ID_MICROSOFT,
+  scope: "openid profile",
+};
+
 const oauth_config = {
   google: oauth_config_google,
+  microsoft: oauth_config_microsoft,
 };
 
 async function fetchJSON(url, options) {
@@ -36,6 +44,15 @@ app.delete("/api/login", (req, res) => {
   res.clearCookie("access_token");
   res.sendStatus(200);
 });
+
+/*app.get("/api/config", (req, res) => {
+  res.json({
+    response_type: "token",
+    client_id,
+    discovery_endpoint,
+    scope: "email profile",
+  });
+});*/
 
 app.get("/api/login/google", async (req, res) => {
   const { access_token } = req.signedCookies;

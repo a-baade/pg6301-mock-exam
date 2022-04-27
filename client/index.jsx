@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { fetchJSON } from "./http";
-import { Login, LoginCallback, ProfileContext } from "./login";
+import {
+  Login,
+  LoginMicrosoft,
+  LoginCallbackGoogle,
+  LoginCallbackMicrosoft,
+  ProfileContext,
+} from "./login";
 import { FrontPage } from "./frontPage";
 import { Profile } from "./profile";
 
@@ -34,9 +40,14 @@ function Application() {
           <Route path={"/"} element={<FrontPage reload={loadingLogin} />} />
           <Route path={"/profile"} element={<Profile />} />
           <Route path={"/login/google"} element={<Login />} />
+          <Route path={"/login/microsoft"} element={<LoginMicrosoft />} />
           <Route
             path={"/login/google/callback"}
-            element={<LoginCallback reload={loadingLogin} />}
+            element={<LoginCallbackGoogle reload={loadingLogin} />}
+          />
+          <Route
+            path={"/login/microsoft/callback"}
+            element={<LoginCallbackMicrosoft reload={loadingLogin} />}
           />
         </Routes>
       </BrowserRouter>
