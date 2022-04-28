@@ -15,13 +15,30 @@ import { Profile } from "./profile";
 function Application() {
   const [loading, setLoading] = useState(true);
   const [login, setLogin] = useState();
+  const [loggedIn, setLoggedIn] = useState();
   useEffect(() => {
     loadingLogin();
   }, []);
 
   async function loadingLogin() {
     setLoading(true);
-    setLogin(await fetchJSON("/api/login/google"));
+    const config = await fetchJSON("/api/config");
+
+    const loginGoogle = await fetchJSON("/api/login/google");
+    const loginMicrosoft = await fetchJSON("/api/login/microsoft");
+
+    let userinfo;
+
+    if (loginGoogle.userinfo) {
+      userinfo = loginGoogle.userinfo;
+    } else if (loginMicrosoft.userinfo) {
+      userinfo = loginMicrosoft.userinfo;
+    }
+
+    if (userinfo !== undefined) {
+      setLoggedIn(true);
+    }
+    setLogin({ config, userinfo });
     setLoading(false);
   }
 

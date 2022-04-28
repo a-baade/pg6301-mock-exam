@@ -27,22 +27,33 @@ function randomString(length) {
 }
 
 export function LoginMicrosoft() {
-  const { oauth_config } = useContext(ProfileContext);
+  const { microsoft } = useContext(ProfileContext).config;
   useEffect(() => {
     async function handleAuthorizeCode() {
-      const { discovery_endpoint, client_id, scope } = oauth_config;
+      const { discovery_endpoint, client_id, scope, response_type } = microsoft;
       const discoveryEndpoint = await fetchJSON(discovery_endpoint);
       const { authorization_endpoint } = discoveryEndpoint;
+
+      const state = randomString(50);
+      window.sessionStorage.setItem("authorization_state", state);
+      const code_verifier = randomString(50);
+      window.sessionStorage.setItem("code_verifier", code_verifier);
+
       const parameters = {
         response_type: "code",
         response_mode: "fragment",
+        state,
         client_id,
         scope,
+        code_challenge: await sha256(code_verifier),
+        code_challenge_method: "S256",
         redirect_uri: window.location.origin + "/login/microsoft/callback",
+        domain_hint: "egms.no",
       };
       window.location.href =
         authorization_endpoint + "?" + new URLSearchParams(parameters);
     }
+
     handleAuthorizeCode();
   }, []);
 
@@ -54,39 +65,42 @@ export function LoginMicrosoft() {
 }
 
 export function LoginCallbackMicrosoft({ reload }) {
-  const [error, setError] = useState();
   const navigate = useNavigate();
+  const [error, setError] = useState();
   const { microsoft } = useContext(ProfileContext).config;
   const { discovery_endpoint, client_id } = microsoft;
   useEffect(() => {
     async function handleCallbackMicrosoft() {
-      const expectedState = window.sessionStorage.getItem("expected_state");
-      const { access_token, error, error_description, state, code, scope } =
-        Object.fromEntries(new URLSearchParams(window.location.substring(1)));
-
+      const { access_token, error, error_description, state, code } =
+        Object.fromEntries(
+          new URLSearchParams(window.location.hash.substring(1))
+        );
+      const expectedState = window.sessionStorage.getItem(
+        "authorization_state"
+      );
       let accessToken = access_token;
 
-      if (expectedState !== state) {
-        setError("Unexpected redirect (state mismatch)");
-        return;
-      }
-      if (error || error_description) {
+      if (state !== expectedState) {
+        setError("Invalid callback - state mismatch");
+      } else if (error || error_description) {
         setError(`Error: ${error} ${error_description}`);
-        return;
-      }
-      if (code) {
-        const { token_endpoint } = await fetchJSON(discovery_endpoint);
+      } else if (code) {
+        const grant_type = "authorization_code";
         const code_verifier = window.sessionStorage.getItem("code_verifier");
+        const redirect_uri =
+          window.location.origin + "/login/microsoft/callback";
+        const { token_endpoint } = await fetchJSON(discovery_endpoint);
 
-        const tokenResponse = await fetchJSON(token_endpoint, {
-          method: "POST",
-          body: new URLSearchParams({
-            code,
-            grant_type: "authorization_code",
-            client_id,
-            code_verifier,
-            redirect_uri: window.location.origin + "/login/microsoft/callback",
-          }),
+        const parameters = {
+          client_id,
+          grant_type,
+          code,
+          code_verifier,
+          redirect_uri,
+        };
+        const tokenResponse = await fetch(token_endpoint, {
+          method: "post",
+          body: new URLSearchParams(parameters),
         });
         if (tokenResponse.ok) {
           const { access_token } = await tokenResponse.json();
@@ -102,8 +116,11 @@ export function LoginCallbackMicrosoft({ reload }) {
       }
 
       const res = await fetch("/api/login", {
-        method: "post",
-        body: new URLSearchParams({ access_token: accessToken }),
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ access_token: accessToken }),
       });
 
       if (res.ok) {
@@ -113,6 +130,7 @@ export function LoginCallbackMicrosoft({ reload }) {
         setError(`Failed POST /api/login: ${res.status} ${res.statusText}`);
       }
     }
+
     handleCallbackMicrosoft();
   }, []);
 
@@ -129,10 +147,10 @@ export function LoginCallbackMicrosoft({ reload }) {
 }
 
 export function Login() {
-  const { oauth_config } = useContext(ProfileContext);
+  const { google } = useContext(ProfileContext).config;
   useEffect(() => {
     async function handleAuthorizeToken() {
-      const { discovery_endpoint, client_id, scope } = oauth_config;
+      const { discovery_endpoint, client_id, scope } = google;
       const discoveryEndpoint = await fetchJSON(discovery_endpoint);
       const { authorization_endpoint } = discoveryEndpoint;
       const parameters = {
@@ -145,6 +163,7 @@ export function Login() {
       window.location.href =
         authorization_endpoint + "?" + new URLSearchParams(parameters);
     }
+
     handleAuthorizeToken();
   }, []);
 
@@ -165,7 +184,7 @@ export function LoginCallbackGoogle({ reload }) {
       );
       console.log(access_token);
 
-      const res = await fetch("/api/login/google", {
+      const res = await fetch("/api/login", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -182,6 +201,7 @@ export function LoginCallbackGoogle({ reload }) {
         );
       }
     }
+
     handleCallbackGoogle();
   }, []);
 

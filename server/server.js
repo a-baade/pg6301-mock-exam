@@ -22,20 +22,20 @@ const oauth_config_google = {
 
 const oauth_config_microsoft = {
   discovery_endpoint:
-    "https://oidc-ver1.difi.no/idporten-oidc-provider/.well-known/openid-configuration",
+    "https://login.microsoftonline.com/organizations/v2.0/.well-known/openid-configuration",
   client_id: process.env.CLIENT_ID_MICROSOFT,
   scope: "openid profile",
 };
 
 const oauth_config = {
-  google: oauth_config_google,
   microsoft: oauth_config_microsoft,
+  google: oauth_config_google,
 };
 
 async function fetchJSON(url, options) {
   const res = await fetch(url, options);
   if (!res.ok) {
-    throw new Error(`Failed ${res.status}`);
+    throw new Error(`Failed ${res.status}, ${res.statusText}`);
   }
   return await res.json();
 }
@@ -45,14 +45,9 @@ app.delete("/api/login", (req, res) => {
   res.sendStatus(200);
 });
 
-/*app.get("/api/config", (req, res) => {
-  res.json({
-    response_type: "token",
-    client_id,
-    discovery_endpoint,
-    scope: "email profile",
-  });
-});*/
+app.get("/api/config", (req, res) => {
+  res.json(oauth_config).json;
+});
 
 app.get("/api/login/google", async (req, res) => {
   const { access_token } = req.signedCookies;
@@ -74,7 +69,27 @@ app.get("/api/login/google", async (req, res) => {
   res.json({ userinfo, oauth_config: oauth_config_google }).status(200);
 });
 
-app.post("/api/login/google", (req, res) => {
+app.get("/api/login/microsoft", async (req, res) => {
+  const { access_token } = req.signedCookies;
+
+  const discoveryEndpoint = await fetchJSON(
+    oauth_config.microsoft.discovery_endpoint
+  );
+  const { userinfo_endpoint } = discoveryEndpoint;
+  let userinfo = undefined;
+  try {
+    userinfo = await fetchJSON(userinfo_endpoint, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+  } catch (error) {
+    console.error({ error });
+  }
+  res.json({ userinfo, oauth_config: oauth_config_microsoft }).status(200);
+});
+
+app.post("/api/login", (req, res) => {
   const { access_token } = req.body;
   res.cookie("access_token", access_token, { signed: true });
   res.sendStatus(200);
