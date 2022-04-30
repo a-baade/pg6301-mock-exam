@@ -11,6 +11,7 @@ import {
 } from "./login";
 import { FrontPage } from "./frontPage";
 import { Profile } from "./profile";
+import { Movies } from "./movies";
 
 function Application() {
   const [loading, setLoading] = useState(true);
@@ -58,6 +59,7 @@ function Application() {
           <Route path={"/profile"} element={<Profile />} />
           <Route path={"/login/google"} element={<Login />} />
           <Route path={"/login/microsoft"} element={<LoginMicrosoft />} />
+          <Route path={"/movies"} element={<Movies />} />
           <Route
             path={"/login/google/callback"}
             element={<LoginCallbackGoogle reload={loadingLogin} />}
