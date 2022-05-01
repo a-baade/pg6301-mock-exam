@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "parcel watch index.html",
     "build": "npm install --include=dev && npm run build:parcel",
     "build:parcel": "parcel build index.html"
@@ -11,6 +11,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/preset-env": "^7.17.10",
+    "@babel/preset-react": "^7.16.7",
+    "jest": "^28.0.3",
+    "jest-babel": "^1.0.1",
+    "jest-environment-jsdom": "^28.0.2",
     "parcel": "^2.4.1"
   },
   "dependencies": {
@@ -18,5 +23,27 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.3.0"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-react",
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "collectCoverageFrom": [
+      "**/*.jsx",
+      "**/*.js",
+      "*!dist/**",
+      "*!coverage/**"
+    ]
   }
 }

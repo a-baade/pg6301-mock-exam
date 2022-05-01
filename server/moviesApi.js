@@ -29,7 +29,7 @@ export function MoviesApi(mongoDB) {
   });
 
   router.post("/add", (req, res) => {
-    const { title, plot, rating, countries } = req.body;
+    const { title, plot, rating, countries, poster } = req.body;
     console.log(req.body);
 
     mongoDB.collection("movies").insertOne({
@@ -37,6 +37,7 @@ export function MoviesApi(mongoDB) {
       plot,
       rating,
       countries,
+      poster,
     });
     res.sendStatus(204);
   });

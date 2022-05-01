@@ -4,6 +4,7 @@ export function AddNewMovie() {
   const [title, setTitle] = useState("");
   const [plot, setPlot] = useState("");
   const [country, setCountry] = useState("");
+  const [poster, setPoster] = useState("");
   const [rating, setRating] = useState("");
 
   async function handleNewMovie(event) {
@@ -16,6 +17,7 @@ export function AddNewMovie() {
         plot,
         country,
         rating,
+        poster,
       }),
     });
     setTitle("");
@@ -40,7 +42,7 @@ export function AddNewMovie() {
       </div>
       <div>
         <input
-          country={plot}
+          country={country}
           placeholder="Country"
           onChange={(e) => setCountry(e.target.value)}
         />
@@ -54,6 +56,19 @@ export function AddNewMovie() {
           rating={plot}
           onChange={(e) => setRating(e.target.value)}
         />
+        <div>
+          <div>
+            <label htmlFor="filePicker">Choose Poster</label>
+          </div>
+          <input
+            id="filePicker"
+            type="file"
+            poster={poster}
+            placeholder="Poster"
+            accept="image/png, image/jpeg"
+            onChange={(e) => setPoster(e.target.value)}
+          />
+        </div>
       </div>
       <input type="submit" value="Submit" />
     </form>
