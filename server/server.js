@@ -4,6 +4,8 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+import { MongoClient } from "mongodb";
+import { MoviesApi } from "./moviesApi.js";
 
 dotenv.config();
 
@@ -12,6 +14,15 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser(process.env.COOKIE_SECRET));
+
+const mongoClient = new MongoClient(process.env.MONGODB_URL);
+mongoClient.connect().then(async () => {
+  console.log("Connected to mongodb");
+  app.use(
+    "/api/movies",
+    MoviesApi(mongoClient.db(process.env.MONGODB_DATABASE || "pg6301-7"))
+  );
+});
 
 const oauth_config_google = {
   discovery_endpoint:
