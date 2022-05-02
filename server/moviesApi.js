@@ -10,16 +10,19 @@ export function MoviesApi(mongoDB) {
       .sort({
         metacritic: -1,
       })
-      .map(({ title, year, plot, imdb, genre, poster, countries }) => ({
-        title,
-        year,
-        plot,
-        imdb,
-        genre,
-        poster,
-        countries,
-      }))
-      .limit(10)
+      .map(
+        ({ title, year, plot, imdb, genre, directors, poster, countries }) => ({
+          title,
+          year,
+          plot,
+          imdb,
+          directors,
+          genre,
+          poster,
+          countries,
+        })
+      )
+      .limit(50)
       .toArray();
     res.json(movies);
   });

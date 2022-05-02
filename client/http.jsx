@@ -8,6 +8,19 @@ export async function fetchJSON(url) {
   return await res.json();
 }
 
+export async function postJSON(url, object) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(object),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to post ${res.status}: ${res.statusText}`);
+  }
+}
+
 export function useLoader(loadingFn) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState();

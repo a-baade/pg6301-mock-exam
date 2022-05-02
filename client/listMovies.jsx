@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { fetchJSON, useLoader } from "./http";
+import { MoviesApiContext } from "./moviesApiContext";
 
-function MovieCard({ movie: { title, imdb, poster, plot } }) {
+function MovieCard({
+  movie: { title, imdb, poster, plot, countries, directors },
+}) {
   return (
     <>
       <h2>{title}</h2>
@@ -9,20 +12,23 @@ function MovieCard({ movie: { title, imdb, poster, plot } }) {
       {poster && (
         <img src={poster} style={{ width: "200px" }} alt={"Movie poster"} />
       )}
-      <h4>Plot:</h4>
+      <h3>Director: {directors}</h3>
+      <h4>Countries: {countries}</h4>
+      <h5>Plot:</h5>
       <p>{plot}</p>
     </>
   );
 }
 
 export function ListMovies() {
+  const { listMovies } = useContext(MoviesApiContext);
   const [search, setSearch] = useState("");
   const [data, setData] = useState([]);
 
   useEffect(() => {
     if (search === "") {
-      fetchJSON("/api/movies").then((jsonData) => {
-        setData(jsonData);
+      fetchJSON("/api/movies").then(() => {
+        setData(listMovies);
       });
     } else {
       fetchJSON(`/api/movies/search/?title=${search}`).then((jsonData) => {
