@@ -10,18 +10,14 @@ export function MoviesApi(mongoDB) {
       .sort({
         metacritic: -1,
       })
-      .map(
-        ({ title, year, plot, imdb, genre, directors, poster, countries }) => ({
-          title,
-          year,
-          plot,
-          imdb,
-          directors,
-          genre,
-          poster,
-          countries,
-        })
-      )
+      .map(({ title, year, plot, genre, poster, countries }) => ({
+        title,
+        year,
+        plot,
+        genre,
+        poster,
+        countries,
+      }))
       .limit(50)
       .toArray();
     res.json(movies);
@@ -32,17 +28,16 @@ export function MoviesApi(mongoDB) {
   });
 
   router.post("/add", (req, res) => {
-    const { title, plot, rating, countries, poster } = req.body;
+    const { title, country, year, plot } = req.body;
     console.log(req.body);
 
     mongoDB.collection("movies").insertOne({
       title,
+      country,
+      year,
       plot,
-      rating,
-      countries,
-      poster,
     });
-    res.sendStatus(204);
+    res.sendStatus(200);
   });
 
   router.get("/search/*", async (req, res) => {
