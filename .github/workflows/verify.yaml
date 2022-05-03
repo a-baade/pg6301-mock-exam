@@ -17,9 +17,6 @@ jobs:
       - name: install dependencies
         run: npm ci
       - run: npm run verify
-      - uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
           MONGODB_URL: ${{ secrets.MONGODB_URL }}
       - name: Collect coverage from client
