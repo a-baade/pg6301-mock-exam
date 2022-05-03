@@ -27,11 +27,11 @@ If you're smart, you construct the code of your app so that everything that has 
 ## Checklist of technologies you should include in your application
 
 * [x] Logon with Active Directory
-* [ ] Jest tests
-    * [ ] Snapshot tests
+* [x] Jest tests
+    * [x] Snapshot tests
     * [ ] Simulate + jest.fn
     * [ ] Supertest
-* [ ] GitHub Actions with coverage report
+* [x] GitHub Actions with coverage report
 * [x] Deployment to Heroku
 * [x] Mongodb
 * [x] Navigating in the application using React Router (remember Express Middleware)

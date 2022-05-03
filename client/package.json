@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "dev": "parcel watch index.html",
     "build": "npm install --include=dev && npm run build:parcel",
     "build:parcel": "parcel build index.html"
@@ -42,7 +42,6 @@
     "collectCoverageFrom": [
       "**/*.jsx",
       "**/*.js",
-      "*!dist/**",
       "*!coverage/**"
     ]
   }
