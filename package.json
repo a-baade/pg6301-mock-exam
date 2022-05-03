@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test:client && npm run test:server",
-    "test:client": "cd client && npm test",
-    "test:server": "cd server && npm test",
+    "test:client": "cd client && npm test --collectCoverage",
+    "test:server": "cd server && npm test --collectCoverage",
     "verify": "npm test",
     "format": "prettier --write **/*.{js,jsx,ts,tsx}",
     "format:check": "prettier --check **/*.{js,jsx,ts,tsx}",
