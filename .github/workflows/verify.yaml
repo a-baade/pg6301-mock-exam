@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v2
       - name: install dependencies
         run: npm ci
-      - run: npm test
+      - run: npm run verify
       - name: Coveralls
       - uses: coverallsapp/github-action@master
         with:
