@@ -8,6 +8,7 @@ on:
 
 jobs:
   verify:
+    permissions: write-all
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
