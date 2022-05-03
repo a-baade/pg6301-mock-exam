@@ -31,7 +31,7 @@ If you're smart, you construct the code of your app so that everything that has 
     * [x] Snapshot tests
     * [ ] Simulate + jest.fn
     * [ ] Supertest
-* [x] GitHub Actions with coverage report
+* [ ] GitHub Actions with coverage report
 * [x] Deployment to Heroku
 * [x] Mongodb
 * [x] Navigating in the application using React Router (remember Express Middleware)
