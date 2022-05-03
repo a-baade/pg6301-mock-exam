@@ -3,6 +3,8 @@ Mock exam for PG6301 Web Development and API design, 2022
 Heroku Link:  https://pg6301-mock-exam.herokuapp.com/
 =========================================================
 
+[![Run tests](https://github.com/a-baade/pg6301-mock-exam/actions/workflows/verify.yaml/badge.svg)](https://github.com/a-baade/pg6301-mock-exam/actions/workflows/verify.yaml)
+
 The exam for PG6301 is a practial test where you should demonstrate your mastery of the technologies and concepts that have been thought in the course: React, Express, Heroku, Mongodb, Open ID Connect, Jest and Web sockets. The fact that this is a practical exam means that you are evaluated on the functionality of the running code that you deliver, rather than your theoretical mastery of the subjects
 
 ## The task
